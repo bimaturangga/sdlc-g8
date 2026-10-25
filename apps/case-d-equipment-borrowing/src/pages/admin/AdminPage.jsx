@@ -1,7 +1,7 @@
 import AppHeader from '../../components/AppHeader.jsx';
 import ResetControl from '../../components/ResetControl.jsx';
-import EquipmentList from '../../features/equipment/EquipmentList.jsx';
 import RequestList from '../../features/requests/RequestList.jsx';
+import UnitFilterPanel from '../../features/units/UnitFilterPanel.jsx';
 import {
   getAvailableUnitCount,
   getMaintenanceUnitCount,
@@ -47,16 +47,12 @@ export default function AdminPage({
         </article>
       </section>
 
-      <section className="panel" aria-labelledby="admin-equipment-heading">
-        <h2 id="admin-equipment-heading">All Equipment</h2>
-        <EquipmentList
-          equipment={data.equipment}
-          selectedId={null}
-          onSelect={() => {}}
-          onToggleMaintenance={onToggleMaintenance}
-          onAddUnit={onAddUnit}
-        />
-      </section>
+      <UnitFilterPanel
+        equipment={data.equipment}
+        requests={data.requests}
+        onToggleMaintenance={onToggleMaintenance}
+        onAddUnit={onAddUnit}
+      />
 
       <section className="panel secondary-section" aria-labelledby="admin-request-heading">
         <div className="panel-heading">

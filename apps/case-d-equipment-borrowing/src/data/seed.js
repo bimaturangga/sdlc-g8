@@ -38,8 +38,22 @@ const equipment = [
 ];
 
 const requests = [
-  { id: 'REQ-001', equipmentId: 'EQ-002', status: 'REQUESTED' },
-  { id: 'REQ-002', equipmentId: 'EQ-004', status: 'REQUESTED' },
+  {
+    id: 'REQ-001',
+    equipmentId: 'EQ-002',
+    status: 'REQUESTED',
+    unitId: 'EQ-002-U01',
+    startDate: '2026-10-26',
+    endDate: '2026-10-28',
+  },
+  {
+    id: 'REQ-002',
+    equipmentId: 'EQ-004',
+    status: 'REQUESTED',
+    unitId: 'EQ-004-U01',
+    startDate: '2026-10-27',
+    endDate: '2026-10-29',
+  },
 ];
 
 export function createSeedData() {
@@ -83,5 +97,11 @@ export function migrateStoredData(value) {
     };
   });
 
-  return { equipment: migratedEquipment, requests: value.requests };
+  const migratedRequests = value.requests.map((request) =>
+    request && typeof request === 'object'
+      ? { unitId: '', startDate: '', endDate: '', ...request }
+      : request,
+  );
+
+  return { equipment: migratedEquipment, requests: migratedRequests };
 }

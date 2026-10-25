@@ -25,5 +25,18 @@ export function createDemoRequest(requests, equipmentId) {
     id: `REQ-${String(nextNumber).padStart(3, '0')}`,
     equipmentId,
     status: 'REQUESTED',
+    unitId: '',
+    startDate: '',
+    endDate: '',
   };
+}
+
+export function getNextUnitId(equipmentItem) {
+  const nextNumber =
+    (equipmentItem?.units ?? []).reduce((largest, unit) => {
+      const number = Number(unit.id.split('-U').at(-1));
+      return Number.isFinite(number) ? Math.max(largest, number) : largest;
+    }, 0) + 1;
+
+  return `${equipmentItem.id}-U${String(nextNumber).padStart(2, '0')}`;
 }

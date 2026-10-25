@@ -8,6 +8,7 @@ import StudentPage from './pages/student/StudentPage.jsx';
 import {
   canCreateDemoRequest,
   createDemoRequest,
+  getNextUnitId,
 } from './utils/equipmentUtils.js';
 import { loadState, resetState, saveState } from './utils/storage.js';
 
@@ -69,26 +70,14 @@ export default function App() {
   function handleAddUnit(equipmentId) {
     setData((current) => ({
       ...current,
-      equipment: current.equipment.map((item) => {
-        if (item.id !== equipmentId) return item;
-
-        const nextUnitNumber =
-          item.units.reduce((largest, unit) => {
-            const number = Number(unit.id.split('-U').at(-1));
-            return Number.isFinite(number) ? Math.max(largest, number) : largest;
-          }, 0) + 1;
-
-        return {
-          ...item,
-          units: [
-            ...item.units,
-            {
-              id: `${item.id}-U${String(nextUnitNumber).padStart(2, '0')}`,
-              maintenance: false,
-            },
-          ],
-        };
-      }),
+      equipment: current.equipment.map((item) =>
+        item.id === equipmentId
+          ? {
+              ...item,
+              units: [...item.units, { id: getNextUnitId(item), maintenance: false }],
+            }
+          : item,
+      ),
     }));
   }
 
