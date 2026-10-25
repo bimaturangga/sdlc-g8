@@ -1,5 +1,5 @@
-import { getEquipmentName } from '../utils/equipmentUtils.js';
-import StatusBadge from './StatusBadge.jsx';
+import { getEquipmentName } from '../../utils/equipmentUtils.js';
+import StatusBadge from '../../components/StatusBadge.jsx';
 
 export default function RequestList({ requests, equipment }) {
   if (requests.length === 0) {

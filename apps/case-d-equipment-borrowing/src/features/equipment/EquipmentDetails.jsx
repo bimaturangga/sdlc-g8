@@ -1,4 +1,4 @@
-import { canCreateDemoRequest } from '../utils/equipmentUtils.js';
+import { canCreateDemoRequest } from '../../utils/equipmentUtils.js';
 
 export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
   if (!equipmentItem) {
