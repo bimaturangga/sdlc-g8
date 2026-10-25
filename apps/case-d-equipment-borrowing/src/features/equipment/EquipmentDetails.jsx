@@ -1,4 +1,8 @@
-import { canCreateDemoRequest } from '../../utils/equipmentUtils.js';
+import {
+  canCreateDemoRequest,
+  getAvailableUnitCount,
+  getMaintenanceUnitCount,
+} from '../../utils/equipmentUtils.js';
 
 export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
   if (!equipmentItem) {
@@ -6,6 +10,13 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
   }
 
   const canRequest = canCreateDemoRequest(equipmentItem);
+  const availableUnits = getAvailableUnitCount(equipmentItem);
+  const maintenanceUnits = getMaintenanceUnitCount(equipmentItem);
+  const status = canRequest
+    ? 'AVAILABLE'
+    : maintenanceUnits > 0
+      ? 'UNDER MAINTENANCE'
+      : 'UNAVAILABLE';
 
   return (
     <>
@@ -16,14 +27,10 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
         </div>
         <span
           className={`status-badge ${
-            equipmentItem.maintenance ? 'warning' : canRequest ? 'success' : 'neutral'
+            canRequest ? 'success' : maintenanceUnits > 0 ? 'warning' : 'neutral'
           }`}
         >
-          {equipmentItem.maintenance
-            ? 'UNDER MAINTENANCE'
-            : canRequest
-              ? 'AVAILABLE'
-              : 'UNAVAILABLE'}
+          {status}
         </span>
       </div>
 
@@ -31,7 +38,9 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
         <dt>Category</dt>
         <dd>{equipmentItem.category}</dd>
         <dt>Available units</dt>
-        <dd>{equipmentItem.availableUnits}</dd>
+        <dd>{availableUnits}</dd>
+        <dt>Units under maintenance</dt>
+        <dd>{maintenanceUnits}</dd>
       </dl>
 
       <button
@@ -40,7 +49,7 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
         onClick={() => onCreateRequest(equipmentItem.id)}
         disabled={!canRequest}
       >
-        {equipmentItem.maintenance
+        {maintenanceUnits > 0 && availableUnits === 0
           ? 'Under Maintenance'
           : canRequest
             ? 'Create Demo Request'

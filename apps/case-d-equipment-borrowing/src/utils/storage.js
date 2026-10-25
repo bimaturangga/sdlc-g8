@@ -13,7 +13,7 @@ function matchesShape(value, example) {
   return typeof value === typeof example;
 }
 
-export function loadState(storageKey, createSeedData) {
+export function loadState(storageKey, createSeedData, migrateState) {
   const fallback = createSeedData();
 
   try {
@@ -21,7 +21,12 @@ export function loadState(storageKey, createSeedData) {
     if (!storedValue) return fallback;
 
     const parsedValue = JSON.parse(storedValue);
-    return matchesShape(parsedValue, fallback) ? parsedValue : fallback;
+    if (matchesShape(parsedValue, fallback)) return parsedValue;
+
+    const migratedValue = migrateState?.(parsedValue);
+    return migratedValue && matchesShape(migratedValue, fallback)
+      ? migratedValue
+      : fallback;
   } catch {
     return fallback;
   }

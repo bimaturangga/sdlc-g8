@@ -21,8 +21,8 @@ Open the local address shown by Vite. Run `npm run build` to create a production
 ## What Works
 
 - View six seeded equipment records and select equipment for details.
-- Admins can mark equipment as under maintenance or clear the maintenance marker.
-- See equipment under maintenance, which is unavailable for new demo requests.
+- Admins can add individual equipment units and mark or clear maintenance for each unit.
+- Available and maintenance unit counts are shown separately; units under maintenance are unavailable for new demo requests.
 - See total equipment records and how many currently show available units.
 - Create a local demo request when the selected equipment has available units and is not under maintenance.
 - View seeded and newly added requests with their status.
@@ -31,7 +31,7 @@ Open the local address shown by Vite. Run `npm run build` to create a production
 
 ## Data & Reset
 
-Static starter records come from `src/data/seed.js`. Changes, including maintenance markers, are saved as JSON under `sdlc:case-d:v1` in this browser's `localStorage`. They are not shared with another browser or device and are not written back to Git. Use **Reset Demo Data** to restore a fresh copy of the seed data.
+Static starter records come from `src/data/seed.js`. Changes, including units and their maintenance markers, are saved as JSON under `sdlc:case-d:v1` in this browser's `localStorage`. Existing demo data using the previous per-equipment maintenance format is migrated when loaded. Data is not shared with another browser or device and is not written back to Git. Use **Reset Demo Data** to restore a fresh copy of the seed data.
 
 ## Project Structure
 

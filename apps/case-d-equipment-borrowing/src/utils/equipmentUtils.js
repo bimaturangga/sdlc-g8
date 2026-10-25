@@ -1,5 +1,13 @@
+export function getAvailableUnitCount(equipmentItem) {
+  return equipmentItem?.units?.filter((unit) => !unit.maintenance).length ?? 0;
+}
+
+export function getMaintenanceUnitCount(equipmentItem) {
+  return equipmentItem?.units?.filter((unit) => unit.maintenance).length ?? 0;
+}
+
 export function canCreateDemoRequest(equipmentItem) {
-  return !equipmentItem?.maintenance && Number(equipmentItem?.availableUnits) > 0;
+  return getAvailableUnitCount(equipmentItem) > 0;
 }
 
 export function getEquipmentName(equipment, equipmentId) {

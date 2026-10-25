@@ -195,6 +195,55 @@ h3 {
   background: #f9fafb;
 }
 
+.unit-management {
+  margin: 12px 4px 4px;
+  padding: 14px;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  background: #fcfcfd;
+}
+
+.unit-management h3 {
+  margin-bottom: 10px;
+}
+
+.unit-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.unit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.unit-row > span {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.unit-row .maintenance-button {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.add-unit-button {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 0.85rem;
+}
+
 .card-heading,
 .card-footer,
 .panel-heading,
@@ -409,7 +458,8 @@ h3 {
 
   .card-heading,
   .card-footer,
-  .secondary-row {
+  .secondary-row,
+  .unit-row {
     align-items: flex-start;
     flex-direction: column;
   }

@@ -2,18 +2,27 @@ import AppHeader from '../../components/AppHeader.jsx';
 import ResetControl from '../../components/ResetControl.jsx';
 import EquipmentList from '../../features/equipment/EquipmentList.jsx';
 import RequestList from '../../features/requests/RequestList.jsx';
+import {
+  getAvailableUnitCount,
+  getMaintenanceUnitCount,
+} from '../../utils/equipmentUtils.js';
 
 export default function AdminPage({
   user,
   data,
   onReset,
   onToggleMaintenance,
+  onAddUnit,
   onLogout,
 }) {
-  const availableCount = data.equipment.filter(
-    (item) => item.availableUnits > 0 && !item.maintenance,
-  ).length;
-  const maintenanceCount = data.equipment.filter((item) => item.maintenance).length;
+  const availableCount = data.equipment.reduce(
+    (total, item) => total + getAvailableUnitCount(item),
+    0,
+  );
+  const maintenanceCount = data.equipment.reduce(
+    (total, item) => total + getMaintenanceUnitCount(item),
+    0,
+  );
 
   return (
     <main className="app-shell">
@@ -29,11 +38,11 @@ export default function AdminPage({
           <p className="summary-value">{data.equipment.length}</p>
         </article>
         <article className="summary-card">
-          <p className="summary-label">Records with available units</p>
+          <p className="summary-label">Available units</p>
           <p className="summary-value">{availableCount}</p>
         </article>
         <article className="summary-card">
-          <p className="summary-label">Under maintenance</p>
+          <p className="summary-label">Units under maintenance</p>
           <p className="summary-value">{maintenanceCount}</p>
         </article>
       </section>
@@ -45,6 +54,7 @@ export default function AdminPage({
           selectedId={null}
           onSelect={() => {}}
           onToggleMaintenance={onToggleMaintenance}
+          onAddUnit={onAddUnit}
         />
       </section>
 

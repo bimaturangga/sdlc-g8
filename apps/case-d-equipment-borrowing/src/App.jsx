@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import LoginPage from './auth/LoginPage.jsx';
 import { clearSession, loadSession, saveSession } from './auth/session.js';
 import { ROLES } from './auth/users.js';
-import { createSeedData } from './data/seed.js';
+import { createSeedData, migrateStoredData } from './data/seed.js';
 import AdminPage from './pages/admin/AdminPage.jsx';
 import StudentPage from './pages/student/StudentPage.jsx';
 import {
@@ -15,7 +15,9 @@ const STORAGE_KEY = 'sdlc:case-d:v1';
 
 export default function App() {
   const [user, setUser] = useState(loadSession);
-  const [data, setData] = useState(() => loadState(STORAGE_KEY, createSeedData));
+  const [data, setData] = useState(() =>
+    loadState(STORAGE_KEY, createSeedData, migrateStoredData),
+  );
 
   useEffect(() => {
     saveState(STORAGE_KEY, data);
@@ -46,14 +48,47 @@ export default function App() {
     });
   }
 
-  function handleToggleMaintenance(equipmentId) {
+  function handleToggleMaintenance(equipmentId, unitId) {
     setData((current) => ({
       ...current,
       equipment: current.equipment.map((item) =>
         item.id === equipmentId
-          ? { ...item, maintenance: !item.maintenance }
+          ? {
+              ...item,
+              units: item.units.map((unit) =>
+                unit.id === unitId
+                  ? { ...unit, maintenance: !unit.maintenance }
+                  : unit,
+              ),
+            }
           : item,
       ),
+    }));
+  }
+
+  function handleAddUnit(equipmentId) {
+    setData((current) => ({
+      ...current,
+      equipment: current.equipment.map((item) => {
+        if (item.id !== equipmentId) return item;
+
+        const nextUnitNumber =
+          item.units.reduce((largest, unit) => {
+            const number = Number(unit.id.split('-U').at(-1));
+            return Number.isFinite(number) ? Math.max(largest, number) : largest;
+          }, 0) + 1;
+
+        return {
+          ...item,
+          units: [
+            ...item.units,
+            {
+              id: `${item.id}-U${String(nextUnitNumber).padStart(2, '0')}`,
+              maintenance: false,
+            },
+          ],
+        };
+      }),
     }));
   }
 
@@ -70,6 +105,7 @@ export default function App() {
         data={data}
         onReset={handleReset}
         onToggleMaintenance={handleToggleMaintenance}
+        onAddUnit={handleAddUnit}
         onLogout={handleLogout}
       />
     );
