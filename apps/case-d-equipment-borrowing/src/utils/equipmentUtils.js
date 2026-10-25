@@ -17,6 +17,8 @@ export function getEquipmentName(equipment, equipmentId) {
 export function createDemoRequest(requests, requestInput) {
   const equipmentId =
     typeof requestInput === 'object' ? requestInput.equipmentId : requestInput;
+  const unitId =
+    typeof requestInput === 'object' && requestInput.unitId ? requestInput.unitId : '';
   const studentName =
     typeof requestInput === 'object' ? requestInput.studentName : '';
   const studentNim =
@@ -45,7 +47,7 @@ export function createDemoRequest(requests, requestInput) {
     studentNim: studentNim || '-',
     studentProdi: studentProdi || '-',
     status,
-    unitId: '',
+    unitId,
     startDate: startDate || '',
     endDate: endDate || '',
   };

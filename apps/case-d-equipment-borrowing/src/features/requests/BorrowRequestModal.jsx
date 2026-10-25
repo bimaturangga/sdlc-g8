@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SearchableSelect from '../../components/SearchableSelect.jsx';
-import { canCreateDemoRequest, getAvailableUnitCount } from '../../utils/equipmentUtils.js';
+import {
+  UNIT_STATUS,
+  getUnitsWithStatus,
+  isValidPeriod,
+} from '../../utils/unitAvailability.js';
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -31,12 +35,11 @@ export default function BorrowRequestModal({
   onClose,
   onSubmit,
   equipment = [],
-  selectedEquipmentId,
+  requests = [],
+  cart = {},
+  onClearCart,
   user,
 }) {
-  const [equipmentId, setEquipmentId] = useState(
-    () => selectedEquipmentId || equipment[0]?.id || '',
-  );
   const [studentName, setStudentName] = useState(() => user?.name || '');
   const [studentNim, setStudentNim] = useState('');
   const [studentProdi, setStudentProdi] = useState('');
@@ -44,14 +47,22 @@ export default function BorrowRequestModal({
   const [endDate, setEndDate] = useState(todayIso);
   const [formError, setFormError] = useState('');
 
-  // Sync with selected equipment when modal opens or selectedEquipmentId changes
-  useEffect(() => {
-    if (selectedEquipmentId) {
-      setEquipmentId(selectedEquipmentId);
-    } else if (equipment.length > 0 && !equipmentId) {
-      setEquipmentId(equipment[0].id);
-    }
-  }, [selectedEquipmentId, equipment]);
+  // Ambil daftar barang dan jumlah unit yang sudah dipilih di awal
+  const selectedItems = useMemo(() => {
+    return equipment
+      .filter((item) => (cart[item.id] || 0) > 0)
+      .map((item) => ({
+        item,
+        qty: cart[item.id],
+      }));
+  }, [equipment, cart]);
+
+  const totalUnits = useMemo(() => {
+    return selectedItems.reduce((sum, item) => sum + item.qty, 0);
+  }, [selectedItems]);
+
+  const period = { start: startDate, end: endDate };
+  const isPeriodValid = Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
 
   // Handle escape key
   useEffect(() => {
@@ -65,14 +76,14 @@ export default function BorrowRequestModal({
 
   if (!isOpen) return null;
 
-  const currentEquipment = equipment.find((item) => item.id === equipmentId);
-  const isAvailable = currentEquipment ? canCreateDemoRequest(currentEquipment) : false;
-  const isPeriodValid = Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
-
   function handleSubmit(e) {
     e.preventDefault();
     setFormError('');
 
+    if (totalUnits === 0) {
+      setFormError('Belum ada alat yang dipilih.');
+      return;
+    }
     if (!studentName.trim()) {
       setFormError('Nama lengkap mahasiswa wajib diisi.');
       return;
@@ -93,19 +104,36 @@ export default function BorrowRequestModal({
       setFormError('Tanggal mulai tidak boleh melebihi tanggal selesai.');
       return;
     }
-    if (!isAvailable) {
-      setFormError('Peralatan yang dipilih saat ini tidak memiliki unit yang tersedia.');
-      return;
+
+    // Alokasikan unit fisik yang tersedia untuk masing-masing barang yang dipilih di awal
+    const payloads = [];
+
+    for (const { item, qty } of selectedItems) {
+      const uStatus = getUnitsWithStatus(item, requests, period);
+      const avails = uStatus.filter((u) => u.status === UNIT_STATUS.AVAILABLE);
+
+      if (avails.length < qty) {
+        setFormError(
+          `Peralatan "${item.name}" hanya memiliki ${avails.length} unit yang tersedia untuk periode ini (diminta: ${qty} unit). Silakan sesuaikan tanggal atau kurangi jumlah.`,
+        );
+        return;
+      }
+
+      for (let i = 0; i < qty; i++) {
+        payloads.push({
+          equipmentId: item.id,
+          unitId: avails[i].unit.id,
+          studentName: studentName.trim(),
+          studentNim: studentNim.trim(),
+          studentProdi: studentProdi.trim(),
+          startDate,
+          endDate,
+        });
+      }
     }
 
-    onSubmit({
-      equipmentId,
-      studentName: studentName.trim(),
-      studentNim: studentNim.trim(),
-      studentProdi: studentProdi.trim(),
-      startDate,
-      endDate,
-    });
+    onSubmit(payloads);
+    if (onClearCart) onClearCart();
     onClose();
   }
 
@@ -123,10 +151,10 @@ export default function BorrowRequestModal({
         {/* Modal Header */}
         <div className="modal-header">
           <div className="modal-header-text">
-            <span className="modal-badge">Formulir Peminjaman</span>
-            <h2 id="modal-request-title">Ajukan Request Peminjaman Alat</h2>
+            <span className="modal-badge">Konfirmasi Peminjaman</span>
+            <h2 id="modal-request-title">Ajukan Peminjaman ({totalUnits} Unit Alat)</h2>
             <p className="modal-subtitle">
-              Lengkapi identitas mahasiswa dan jadwal peminjaman alat di bawah ini.
+              Lengkapi identitas mahasiswa dan jadwal peminjaman untuk alat yang telah dipilih.
             </p>
           </div>
           <button
@@ -156,7 +184,58 @@ export default function BorrowRequestModal({
         )}
 
         <form onSubmit={handleSubmit} className="modal-form-body">
-          {/* Section: Identitas Mahasiswa */}
+          {/* Detail Alat yang Dipinjam (Simple list biasa, no boxes) */}
+          <div className="form-section">
+            <h3 className="section-title">Detail Alat yang Dipinjam</h3>
+
+            {selectedItems.length === 0 ? (
+              <p className="meta" style={{ color: '#dc2626' }}>
+                Belum ada alat yang dipilih.
+              </p>
+            ) : (
+              <div style={{ margin: '4px 0 0' }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '6px' }}>
+                  {selectedItems.map(({ item, qty }) => (
+                    <li
+                      key={item.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '0.9rem',
+                        color: '#344054',
+                        padding: '4px 0',
+                        borderBottom: '1px solid #f1f5f9',
+                      }}
+                    >
+                      <span>
+                        • <strong>{item.name}</strong> <span className="meta" style={{ fontSize: '0.8rem' }}>({item.id})</span>
+                      </span>
+                      <span style={{ fontWeight: 600, color: '#1d4ed8' }}>
+                        {qty} unit
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '8px',
+                    paddingTop: '6px',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                  }}
+                >
+                  <span>Total Unit:</span>
+                  <span style={{ color: '#1d4ed8' }}>{totalUnits} unit</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Identitas Mahasiswa (Nama, NIM, Jurusan) */}
           <div className="form-section">
             <h3 className="section-title">Identitas Mahasiswa</h3>
 
@@ -190,7 +269,7 @@ export default function BorrowRequestModal({
               </div>
             </div>
 
-            {/* Jurusan / Program Studi with Searchable Combobox */}
+            {/* Jurusan / Program Studi */}
             <div className="form-field">
               <label htmlFor="student-prodi">
                 Jurusan / Program Studi <span className="req-star">*</span>
@@ -206,40 +285,10 @@ export default function BorrowRequestModal({
             </div>
           </div>
 
-          {/* Section: Detail Peminjaman */}
+          {/* Tanggal Peminjaman (Mulai & Selesai) */}
           <div className="form-section">
-            <h3 className="section-title">Detail Peralatan & Periode</h3>
+            <h3 className="section-title">Tanggal Peminjaman</h3>
 
-            {/* Jenis Alat */}
-            <div className="form-field">
-              <label htmlFor="borrow-equipment">
-                Alat yang Dipinjam <span className="req-star">*</span>
-              </label>
-              <div className="select-container">
-                <select
-                  id="borrow-equipment"
-                  value={equipmentId}
-                  onChange={(e) => setEquipmentId(e.target.value)}
-                >
-                  {equipment.map((item) => {
-                    const avail = getAvailableUnitCount(item);
-                    return (
-                      <option key={item.id} value={item.id}>
-                        {item.name} ({item.id}) — {avail} unit siap dipinjam
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              {!isAvailable && (
-                <div className="field-warning">
-                  ⚠️ Peralatan ini saat ini tidak memiliki unit yang tersedia untuk dipinjam.
-                </div>
-              )}
-            </div>
-
-            {/* Periode Peminjaman (Tanggal Mulai & Selesai) */}
             <div className="form-grid-2col">
               <div className="form-field">
                 <label htmlFor="start-date">
@@ -282,21 +331,6 @@ export default function BorrowRequestModal({
             )}
           </div>
 
-          {/* Status Information Box */}
-          <div className="modal-info-box">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20" className="info-icon">
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <p>
-              Setelah diajukan, status request otomatis menjadi{' '}
-              <strong>WAITING APPROVAL</strong> dan akan diverifikasi oleh staf laboratorium.
-            </p>
-          </div>
-
           {/* Modal Footer */}
           <div className="modal-footer">
             <button className="secondary-button" type="button" onClick={onClose}>
@@ -305,9 +339,15 @@ export default function BorrowRequestModal({
             <button
               className="primary-button"
               type="submit"
-              disabled={!isAvailable || !isPeriodValid || !studentNim.trim() || !studentName.trim() || !studentProdi.trim()}
+              disabled={
+                totalUnits === 0 ||
+                !isPeriodValid ||
+                !studentNim.trim() ||
+                !studentName.trim() ||
+                !studentProdi.trim()
+              }
             >
-              Ajukan Request Peminjaman
+              Kirim Pengajuan Peminjaman ({totalUnits} Unit)
             </button>
           </div>
         </form>
