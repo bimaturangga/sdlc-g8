@@ -5,6 +5,7 @@ import {
   isValidPeriod,
 } from '../../utils/unitAvailability.js';
 import { getNextUnitId } from '../../utils/equipmentUtils.js';
+import RequestList from '../requests/RequestList.jsx';
 
 const STATUS_OPTIONS = [
   UNIT_STATUS.AVAILABLE,
@@ -58,6 +59,7 @@ export default function UnitFilterPanel({
   requests,
   onToggleMaintenance,
   onAddUnit,
+  onConfirmRequest,
 }) {
   const [period, setPeriod] = useState(() => ({ start: todayIso(), end: todayIso() }));
   const [statuses, setStatuses] = useState([]);
@@ -68,6 +70,7 @@ export default function UnitFilterPanel({
   const menuRef = useRef(null);
   const isOpen = openMenu === 'filter';
   const isAddOpen = openMenu === 'add';
+  const isRequestsOpen = openMenu === 'requests';
   const addTargetValue = equipment.some((item) => item.id === addTargetId)
     ? addTargetId
     : (equipment[0]?.id ?? '');
@@ -175,6 +178,35 @@ export default function UnitFilterPanel({
                   Add unit
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+        <div className="filter-menu">
+          <button
+            className="secondary-button"
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={isRequestsOpen}
+            onClick={() => setOpenMenu(isRequestsOpen ? null : 'requests')}
+          >
+            Request Item ({requests.length})
+          </button>
+          {isRequestsOpen && (
+            <div
+              className="filter-dropdown request-item-dropdown"
+              role="dialog"
+              aria-label="All requests"
+            >
+              <div className="panel-heading">
+                <h2 id="admin-request-heading">All Requests</h2>
+                <span className="meta">{requests.length} total</span>
+              </div>
+              <RequestList
+                requests={requests}
+                equipment={equipment}
+                staffView
+                onConfirm={onConfirmRequest}
+              />
             </div>
           )}
         </div>

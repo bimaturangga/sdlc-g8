@@ -1,4 +1,4 @@
-const successStatuses = new Set(['STORED', 'AVAILABLE', 'DONE', 'READY']);
+const successStatuses = new Set(['STORED', 'AVAILABLE', 'DONE', 'READY', 'CONFIRMED']);
 const infoStatuses = new Set(['FOUND', 'NEW', 'IN_PROGRESS', 'REQUESTED']);
 const warningStatuses = new Set(['PREPARING', 'WAITING_APPROVAL', 'PENDING_APPROVAL']);
 

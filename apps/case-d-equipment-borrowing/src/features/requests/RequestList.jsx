@@ -1,7 +1,8 @@
 import { getEquipmentName } from '../../utils/equipmentUtils.js';
+import { getRequestConflict } from '../../utils/unitAvailability.js';
 import StatusBadge from '../../components/StatusBadge.jsx';
 
-export default function RequestList({ requests, equipment }) {
+export default function RequestList({ requests, equipment, staffView = false, onConfirm }) {
   if (requests.length === 0) {
     return <div className="empty-state">No demo requests have been recorded.</div>;
   }
@@ -24,8 +25,34 @@ export default function RequestList({ requests, equipment }) {
                 : ''}
               {request.unitId ? ` · Unit: ${request.unitId}` : ''}
             </span>
+            {staffView && request.status === 'REQUESTED' && (() => {
+              const check = getRequestConflict(request, requests, equipment);
+              return (
+                <div className={`conflict-check ${check.status}`} role="status">
+                  <strong>
+                    {check.status === 'conflict'
+                      ? 'Conflict detected'
+                      : check.status === 'unknown'
+                        ? 'Conflict check incomplete'
+                        : 'No conflict detected'}
+                  </strong>
+                  <span>{check.message}</span>
+                </div>
+              );
+            })()}
           </div>
-          <StatusBadge status={request.status} />
+          <div className="request-actions">
+            <StatusBadge status={request.status} />
+            {staffView && request.status === 'REQUESTED' && (
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => onConfirm(request.id)}
+              >
+                Confirm request
+              </button>
+            )}
+          </div>
         </li>
       ))}
     </ul>
