@@ -11,16 +11,19 @@ export default function RequestList({ requests, equipment, staffView = false, on
     <ul className="secondary-list" aria-label="Demo equipment requests">
       {requests.map((request) => (
         <li className="secondary-row" key={request.id}>
-          <div>
+          <div style={{ display: 'grid', gap: '4px' }}>
             <p>
               <strong>{getEquipmentName(equipment, request.equipmentId)}</strong>
+              {request.studentName ? ` · ${request.studentName}` : ''}
+              {request.studentNim && request.studentNim !== '-' ? ` (${request.studentNim})` : ''}
             </p>
             <span className="meta">
               {request.id}
-              {request.unitId ? ` · ${request.unitId}` : ''}
+              {request.studentProdi && request.studentProdi !== '-' ? ` · ${request.studentProdi}` : ''}
               {request.startDate && request.endDate
-                ? ` · ${request.startDate} to ${request.endDate}`
+                ? ` · Periode: ${request.startDate} s/d ${request.endDate}`
                 : ''}
+              {request.unitId ? ` · Unit: ${request.unitId}` : ''}
             </span>
             {staffView && request.status === 'REQUESTED' && (() => {
               const check = getRequestConflict(request, requests, equipment);
