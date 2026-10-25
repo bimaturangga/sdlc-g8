@@ -34,7 +34,10 @@ export default function App() {
     setUser(null);
   }
 
-  function handleCreateRequest(equipmentId) {
+  function handleCreateRequest(requestInput) {
+    const equipmentId =
+      typeof requestInput === 'object' ? requestInput.equipmentId : requestInput;
+
     setData((current) => {
       const equipmentItem = current.equipment.find((item) => item.id === equipmentId);
       if (!canCreateDemoRequest(equipmentItem)) return current;
@@ -43,7 +46,7 @@ export default function App() {
         ...current,
         requests: [
           ...current.requests,
-          createDemoRequest(current.requests, equipmentId),
+          createDemoRequest(current.requests, requestInput),
         ],
       };
     });
