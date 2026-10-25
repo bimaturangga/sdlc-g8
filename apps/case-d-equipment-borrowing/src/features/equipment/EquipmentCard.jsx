@@ -13,8 +13,20 @@ export default function EquipmentCard({ equipmentItem, isSelected, onSelect }) {
           <strong>{equipmentItem.name}</strong>
           <span className="meta"> · {equipmentItem.id}</span>
         </span>
-        <span className={`status-badge ${equipmentItem.availableUnits > 0 ? 'success' : 'neutral'}`}>
-          {equipmentItem.availableUnits > 0 ? 'AVAILABLE' : 'UNAVAILABLE'}
+        <span
+          className={`status-badge ${
+            equipmentItem.maintenance
+              ? 'warning'
+              : equipmentItem.availableUnits > 0
+                ? 'success'
+                : 'neutral'
+          }`}
+        >
+          {equipmentItem.maintenance
+            ? 'UNDER MAINTENANCE'
+            : equipmentItem.availableUnits > 0
+              ? 'AVAILABLE'
+              : 'UNAVAILABLE'}
         </span>
       </span>
       <span className="card-footer">

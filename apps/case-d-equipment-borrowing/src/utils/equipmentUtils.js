@@ -1,5 +1,5 @@
 export function canCreateDemoRequest(equipmentItem) {
-  return Number(equipmentItem?.availableUnits) > 0;
+  return !equipmentItem?.maintenance && Number(equipmentItem?.availableUnits) > 0;
 }
 
 export function getEquipmentName(equipment, equipmentId) {

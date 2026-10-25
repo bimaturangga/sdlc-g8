@@ -14,8 +14,16 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
           <p className="eyebrow">{equipmentItem.id}</p>
           <h2>{equipmentItem.name}</h2>
         </div>
-        <span className={`status-badge ${canRequest ? 'success' : 'neutral'}`}>
-          {canRequest ? 'AVAILABLE' : 'UNAVAILABLE'}
+        <span
+          className={`status-badge ${
+            equipmentItem.maintenance ? 'warning' : canRequest ? 'success' : 'neutral'
+          }`}
+        >
+          {equipmentItem.maintenance
+            ? 'UNDER MAINTENANCE'
+            : canRequest
+              ? 'AVAILABLE'
+              : 'UNAVAILABLE'}
         </span>
       </div>
 
@@ -32,7 +40,11 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
         onClick={() => onCreateRequest(equipmentItem.id)}
         disabled={!canRequest}
       >
-        {canRequest ? 'Create Demo Request' : 'No Units Available'}
+        {equipmentItem.maintenance
+          ? 'Under Maintenance'
+          : canRequest
+            ? 'Create Demo Request'
+            : 'No Units Available'}
       </button>
       <p className="helper-text">
         A demo request is only a record. It does not reduce available units.

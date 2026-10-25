@@ -3,10 +3,17 @@ import ResetControl from '../../components/ResetControl.jsx';
 import EquipmentList from '../../features/equipment/EquipmentList.jsx';
 import RequestList from '../../features/requests/RequestList.jsx';
 
-export default function AdminPage({ user, data, onReset, onLogout }) {
+export default function AdminPage({
+  user,
+  data,
+  onReset,
+  onToggleMaintenance,
+  onLogout,
+}) {
   const availableCount = data.equipment.filter(
-    (item) => item.availableUnits > 0,
+    (item) => item.availableUnits > 0 && !item.maintenance,
   ).length;
+  const maintenanceCount = data.equipment.filter((item) => item.maintenance).length;
 
   return (
     <main className="app-shell">
@@ -25,11 +32,20 @@ export default function AdminPage({ user, data, onReset, onLogout }) {
           <p className="summary-label">Records with available units</p>
           <p className="summary-value">{availableCount}</p>
         </article>
+        <article className="summary-card">
+          <p className="summary-label">Under maintenance</p>
+          <p className="summary-value">{maintenanceCount}</p>
+        </article>
       </section>
 
       <section className="panel" aria-labelledby="admin-equipment-heading">
         <h2 id="admin-equipment-heading">All Equipment</h2>
-        <EquipmentList equipment={data.equipment} selectedId={null} onSelect={() => {}} />
+        <EquipmentList
+          equipment={data.equipment}
+          selectedId={null}
+          onSelect={() => {}}
+          onToggleMaintenance={onToggleMaintenance}
+        />
       </section>
 
       <section className="panel secondary-section" aria-labelledby="admin-request-heading">

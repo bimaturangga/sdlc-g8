@@ -46,6 +46,17 @@ export default function App() {
     });
   }
 
+  function handleToggleMaintenance(equipmentId) {
+    setData((current) => ({
+      ...current,
+      equipment: current.equipment.map((item) =>
+        item.id === equipmentId
+          ? { ...item, maintenance: !item.maintenance }
+          : item,
+      ),
+    }));
+  }
+
   function handleReset() {
     setData(resetState(STORAGE_KEY, createSeedData));
   }
@@ -54,7 +65,13 @@ export default function App() {
 
   if (user.role === ROLES.ADMIN) {
     return (
-      <AdminPage user={user} data={data} onReset={handleReset} onLogout={handleLogout} />
+      <AdminPage
+        user={user}
+        data={data}
+        onReset={handleReset}
+        onToggleMaintenance={handleToggleMaintenance}
+        onLogout={handleLogout}
+      />
     );
   }
 
