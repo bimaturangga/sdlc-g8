@@ -41,9 +41,6 @@ const requests = [
   {
     id: 'REQ-001',
     equipmentId: 'EQ-002',
-    studentName: 'Bima Turangga',
-    studentNim: '2210511001',
-    studentProdi: 'S1 Informatika',
     status: 'REQUESTED',
     unitId: 'EQ-002-U01',
     startDate: '2026-10-26',
@@ -52,9 +49,6 @@ const requests = [
   {
     id: 'REQ-002',
     equipmentId: 'EQ-004',
-    studentName: 'Siti Rahma',
-    studentNim: '2210511002',
-    studentProdi: 'S1 Sistem Informasi',
     status: 'REQUESTED',
     unitId: 'EQ-004-U01',
     startDate: '2026-10-27',
@@ -105,15 +99,7 @@ export function migrateStoredData(value) {
 
   const migratedRequests = value.requests.map((request) =>
     request && typeof request === 'object'
-      ? {
-          studentName: '',
-          studentNim: '',
-          studentProdi: '',
-          unitId: '',
-          startDate: '',
-          endDate: '',
-          ...request,
-        }
+      ? { unitId: '', startDate: '', endDate: '', ...request }
       : request,
   );
 

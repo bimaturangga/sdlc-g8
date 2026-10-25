@@ -4,12 +4,9 @@ import {
   getMaintenanceUnitCount,
 } from '../../utils/equipmentUtils.js';
 
-export default function EquipmentDetails({
-  equipmentItem,
-  onOpenBorrowModal,
-}) {
+export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
   if (!equipmentItem) {
-    return <div className="empty-state">Pilih peralatan untuk melihat rincian dan mengajukan peminjaman.</div>;
+    return <div className="empty-state">Select equipment to view its details.</div>;
   }
 
   const canRequest = canCreateDemoRequest(equipmentItem);
@@ -46,22 +43,21 @@ export default function EquipmentDetails({
         <dd>{maintenanceUnits}</dd>
       </dl>
 
-      <div style={{ marginTop: '18px', display: 'grid', gap: '10px' }}>
-        <button
-          className="primary-button"
-          type="button"
-          onClick={() => onOpenBorrowModal(equipmentItem.id)}
-          disabled={!canRequest}
-          style={{ width: '100%', minHeight: '42px', fontSize: '0.95rem' }}
-        >
-          {maintenanceUnits > 0 && availableUnits === 0
-            ? 'Sedang Dalam Perbaikan'
-            : canRequest
-              ? 'Ajukan Peminjaman'
-              : 'Tidak Ada Unit Tersedia'}
-        </button>
-
-      </div>
+      <button
+        className="primary-button"
+        type="button"
+        onClick={() => onCreateRequest(equipmentItem.id)}
+        disabled={!canRequest}
+      >
+        {maintenanceUnits > 0 && availableUnits === 0
+          ? 'Under Maintenance'
+          : canRequest
+            ? 'Create Demo Request'
+            : 'No Units Available'}
+      </button>
+      <p className="helper-text">
+        A demo request is only a record. It does not reduce available units.
+      </p>
     </>
   );
 }
