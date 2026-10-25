@@ -1,6 +1,6 @@
 const successStatuses = new Set(['STORED', 'AVAILABLE', 'DONE', 'READY']);
 const infoStatuses = new Set(['FOUND', 'NEW', 'IN_PROGRESS', 'REQUESTED']);
-const warningStatuses = new Set(['PREPARING', 'WAITING_APPROVAL', 'PENDING_APPROVAL']);
+const warningStatuses = new Set(['PREPARING']);
 
 function getTone(status) {
   if (successStatuses.has(status)) return 'success';

@@ -14,24 +14,7 @@ export function getEquipmentName(equipment, equipmentId) {
   return equipment.find((item) => item.id === equipmentId)?.name ?? 'Unknown equipment';
 }
 
-export function createDemoRequest(requests, requestInput) {
-  const equipmentId =
-    typeof requestInput === 'object' ? requestInput.equipmentId : requestInput;
-  const studentName =
-    typeof requestInput === 'object' ? requestInput.studentName : '';
-  const studentNim =
-    typeof requestInput === 'object' ? requestInput.studentNim : '';
-  const studentProdi =
-    typeof requestInput === 'object' ? requestInput.studentProdi : '';
-  const startDate =
-    typeof requestInput === 'object' ? requestInput.startDate : '';
-  const endDate =
-    typeof requestInput === 'object' ? requestInput.endDate : '';
-  const status =
-    typeof requestInput === 'object' && requestInput.status
-      ? requestInput.status
-      : 'WAITING_APPROVAL';
-
+export function createDemoRequest(requests, equipmentId) {
   const nextNumber =
     requests.reduce((largest, request) => {
       const number = Number(request.id.split('-').at(-1));
@@ -41,13 +24,10 @@ export function createDemoRequest(requests, requestInput) {
   return {
     id: `REQ-${String(nextNumber).padStart(3, '0')}`,
     equipmentId,
-    studentName: studentName || 'Mahasiswa Demo',
-    studentNim: studentNim || '-',
-    studentProdi: studentProdi || '-',
-    status,
+    status: 'REQUESTED',
     unitId: '',
-    startDate: startDate || '',
-    endDate: endDate || '',
+    startDate: '',
+    endDate: '',
   };
 }
 
