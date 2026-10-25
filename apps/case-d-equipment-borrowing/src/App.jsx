@@ -34,17 +34,26 @@ export default function App() {
     setUser(null);
   }
 
-  function handleCreateRequest(equipmentId) {
+  function handleCreateRequest(requestInput) {
     setData((current) => {
-      const equipmentItem = current.equipment.find((item) => item.id === equipmentId);
-      if (!canCreateDemoRequest(equipmentItem)) return current;
+      const inputs = Array.isArray(requestInput) ? requestInput : [requestInput];
+      let newRequests = [...current.requests];
+
+      for (const input of inputs) {
+        const equipmentId =
+          typeof input === 'object' ? input.equipmentId : input;
+        const equipmentItem = current.equipment.find((item) => item.id === equipmentId);
+        if (!equipmentItem) continue;
+
+        newRequests = [
+          ...newRequests,
+          createDemoRequest(newRequests, input),
+        ];
+      }
 
       return {
         ...current,
-        requests: [
-          ...current.requests,
-          createDemoRequest(current.requests, equipmentId),
-        ],
+        requests: newRequests,
       };
     });
   }

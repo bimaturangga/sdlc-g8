@@ -10,11 +10,20 @@ export default function RequestList({ requests, equipment }) {
     <ul className="secondary-list" aria-label="Demo equipment requests">
       {requests.map((request) => (
         <li className="secondary-row" key={request.id}>
-          <div>
+          <div style={{ display: 'grid', gap: '4px' }}>
             <p>
               <strong>{getEquipmentName(equipment, request.equipmentId)}</strong>
+              {request.studentName ? ` · ${request.studentName}` : ''}
+              {request.studentNim && request.studentNim !== '-' ? ` (${request.studentNim})` : ''}
             </p>
-            <span className="meta">{request.id}</span>
+            <span className="meta">
+              {request.id}
+              {request.studentProdi && request.studentProdi !== '-' ? ` · ${request.studentProdi}` : ''}
+              {request.startDate && request.endDate
+                ? ` · Periode: ${request.startDate} s/d ${request.endDate}`
+                : ''}
+              {request.unitId ? ` · Unit: ${request.unitId}` : ''}
+            </span>
           </div>
           <StatusBadge status={request.status} />
         </li>
