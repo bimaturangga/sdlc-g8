@@ -81,6 +81,17 @@ export default function App() {
     }));
   }
 
+  function handleConfirmRequest(requestId) {
+    setData((current) => ({
+      ...current,
+      requests: current.requests.map((request) =>
+        request.id === requestId && request.status === 'REQUESTED'
+          ? { ...request, status: 'CONFIRMED' }
+          : request,
+      ),
+    }));
+  }
+
   function handleReset() {
     setData(resetState(STORAGE_KEY, createSeedData));
   }
@@ -95,6 +106,7 @@ export default function App() {
         onReset={handleReset}
         onToggleMaintenance={handleToggleMaintenance}
         onAddUnit={handleAddUnit}
+        onConfirmRequest={handleConfirmRequest}
         onLogout={handleLogout}
       />
     );

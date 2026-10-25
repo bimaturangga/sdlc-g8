@@ -13,6 +13,7 @@ export default function AdminPage({
   onReset,
   onToggleMaintenance,
   onAddUnit,
+  onConfirmRequest,
   onLogout,
 }) {
   const availableCount = data.equipment.reduce(
@@ -59,7 +60,12 @@ export default function AdminPage({
           <h2 id="admin-request-heading">All Requests</h2>
           <span className="meta">{data.requests.length} total</span>
         </div>
-        <RequestList requests={data.requests} equipment={data.equipment} />
+        <RequestList
+          requests={data.requests}
+          equipment={data.equipment}
+          staffView
+          onConfirm={onConfirmRequest}
+        />
       </section>
     </main>
   );

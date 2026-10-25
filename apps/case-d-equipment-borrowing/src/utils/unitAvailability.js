@@ -15,6 +15,37 @@ function overlapsPeriod(request, period) {
   return request.startDate <= period.end && request.endDate >= period.start;
 }
 
+export function getRequestConflict(request, requests, equipment) {
+  const period = { start: request.startDate, end: request.endDate };
+  if (!request.unitId || !isValidPeriod(period)) {
+    return { status: 'unknown', message: 'Conflict check unavailable: unit or dates are missing.' };
+  }
+
+  const equipmentItem = equipment.find((item) => item.id === request.equipmentId);
+  const unit = equipmentItem?.units.find((item) => item.id === request.unitId);
+  if (!unit) {
+    return { status: 'unknown', message: 'Conflict check unavailable: requested unit was not found.' };
+  }
+  if (unit.maintenance) {
+    return { status: 'conflict', message: `${unit.id} is marked for maintenance.` };
+  }
+
+  const overlappingRequest = requests.find(
+    (item) =>
+      item.id !== request.id &&
+      item.unitId === request.unitId &&
+      !INACTIVE_REQUEST_STATUSES.has(item.status) &&
+      overlapsPeriod(item, period),
+  );
+
+  return overlappingRequest
+    ? {
+        status: 'conflict',
+        message: `Overlaps ${overlappingRequest.id} (${overlappingRequest.startDate} to ${overlappingRequest.endDate}).`,
+      }
+    : { status: 'clear', message: 'No scheduling conflict detected.' };
+}
+
 export function getUnitStatus(unit, requests, period) {
   if (unit.maintenance) return { status: UNIT_STATUS.MAINTENANCE, request: null };
 
