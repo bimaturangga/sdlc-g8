@@ -1,4 +1,8 @@
-import { canCreateDemoRequest } from '../../utils/equipmentUtils.js';
+import {
+  canCreateDemoRequest,
+  getAvailableUnitCount,
+  getMaintenanceUnitCount,
+} from '../../utils/equipmentUtils.js';
 
 export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
   if (!equipmentItem) {
@@ -6,6 +10,13 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
   }
 
   const canRequest = canCreateDemoRequest(equipmentItem);
+  const availableUnits = getAvailableUnitCount(equipmentItem);
+  const maintenanceUnits = getMaintenanceUnitCount(equipmentItem);
+  const status = canRequest
+    ? 'AVAILABLE'
+    : maintenanceUnits > 0
+      ? 'UNDER MAINTENANCE'
+      : 'UNAVAILABLE';
 
   return (
     <>
@@ -14,8 +25,12 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
           <p className="eyebrow">{equipmentItem.id}</p>
           <h2>{equipmentItem.name}</h2>
         </div>
-        <span className={`status-badge ${canRequest ? 'success' : 'neutral'}`}>
-          {canRequest ? 'AVAILABLE' : 'UNAVAILABLE'}
+        <span
+          className={`status-badge ${
+            canRequest ? 'success' : maintenanceUnits > 0 ? 'warning' : 'neutral'
+          }`}
+        >
+          {status}
         </span>
       </div>
 
@@ -23,7 +38,9 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
         <dt>Category</dt>
         <dd>{equipmentItem.category}</dd>
         <dt>Available units</dt>
-        <dd>{equipmentItem.availableUnits}</dd>
+        <dd>{availableUnits}</dd>
+        <dt>Units under maintenance</dt>
+        <dd>{maintenanceUnits}</dd>
       </dl>
 
       <button
@@ -32,7 +49,11 @@ export default function EquipmentDetails({ equipmentItem, onCreateRequest }) {
         onClick={() => onCreateRequest(equipmentItem.id)}
         disabled={!canRequest}
       >
-        {canRequest ? 'Create Demo Request' : 'No Units Available'}
+        {maintenanceUnits > 0 && availableUnits === 0
+          ? 'Under Maintenance'
+          : canRequest
+            ? 'Create Demo Request'
+            : 'No Units Available'}
       </button>
       <p className="helper-text">
         A demo request is only a record. It does not reduce available units.
