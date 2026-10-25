@@ -1,6 +1,5 @@
 import AppHeader from '../../components/AppHeader.jsx';
 import ResetControl from '../../components/ResetControl.jsx';
-import RequestList from '../../features/requests/RequestList.jsx';
 import UnitFilterPanel from '../../features/units/UnitFilterPanel.jsx';
 import {
   getAvailableUnitCount,
@@ -53,20 +52,8 @@ export default function AdminPage({
         requests={data.requests}
         onToggleMaintenance={onToggleMaintenance}
         onAddUnit={onAddUnit}
+        onConfirmRequest={onConfirmRequest}
       />
-
-      <section className="panel secondary-section" aria-labelledby="admin-request-heading">
-        <div className="panel-heading">
-          <h2 id="admin-request-heading">All Requests</h2>
-          <span className="meta">{data.requests.length} total</span>
-        </div>
-        <RequestList
-          requests={data.requests}
-          equipment={data.equipment}
-          staffView
-          onConfirm={onConfirmRequest}
-        />
-      </section>
     </main>
   );
 }

@@ -626,6 +626,16 @@ h3 {
   width: min(360px, calc(100vw - 32px));
 }
 
+.request-item-dropdown {
+  width: min(620px, calc(100vw - 32px));
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+}
+
+.request-item-dropdown .panel-heading {
+  margin-bottom: 0;
+}
+
 .add-unit-header {
   display: flex;
   align-items: center;
