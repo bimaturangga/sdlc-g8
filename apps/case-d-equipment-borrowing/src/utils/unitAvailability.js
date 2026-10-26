@@ -67,3 +67,49 @@ export function getUnitsWithStatus(equipmentItem, requests, period) {
     ...getUnitStatus(unit, requests, period),
   }));
 }
+
+// ==========================================
+// ST-05: Deteksi Request Beririsan (Hasbi)
+// ==========================================
+
+export function isDateRangeOverlapping(startA, endA, startB, endB) {
+  if (!startA || !endA || !startB || !endB) return false;
+  return startA <= endB && endA >= startB;
+}
+
+export function detectUnitConflicts(requests = []) {
+  // Filter hanya request aktif yang sudah memiliki unitId
+  const activeRequests = requests.filter(
+    (req) => req.unitId && !INACTIVE_REQUEST_STATUSES.has(req.status)
+  );
+
+  const conflictingRequestIds = new Set();
+  const conflictsByUnit = {};
+
+  // Membandingkan setiap pasangan request
+  for (let i = 0; i < activeRequests.length; i++) {
+    for (let j = i + 1; j < activeRequests.length; j++) {
+      const reqA = activeRequests[i];
+      const reqB = activeRequests[j];
+
+      if (
+        reqA.unitId === reqB.unitId &&
+        isDateRangeOverlapping(reqA.startDate, reqA.endDate, reqB.startDate, reqB.endDate)
+      ) {
+        conflictingRequestIds.add(reqA.id);
+        conflictingRequestIds.add(reqB.id);
+
+        if (!conflictsByUnit[reqA.unitId]) {
+          conflictsByUnit[reqA.unitId] = [];
+        }
+        conflictsByUnit[reqA.unitId].push([reqA.id, reqB.id]);
+      }
+    }
+  }
+
+  return {
+    hasConflict: conflictingRequestIds.size > 0,
+    conflictingRequestIds: Array.from(conflictingRequestIds),
+    conflictsByUnit,
+  };
+}
