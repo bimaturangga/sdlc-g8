@@ -1,54 +1,88 @@
 # Campus Equipment Access & Borrowing
 
-## Purpose
+Aplikasi peminjaman peralatan kampus berbasis React dan Vite untuk latihan SDLC. Mendukung dua peran, admin dan mahasiswa, dengan data demo yang tersimpan di browser.
 
-This starter application displays simple campus equipment records and local demo requests. It provides a small client-side codebase for an SDLC class exercise.
+## Prasyarat
 
-## Requirements
-
-- A current Node.js LTS release
+- Node.js LTS terbaru
 - npm
 
-## Quick Start
+## Menjalankan
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the local address shown by Vite. Run `npm run build` to create a production build in `dist/`.
+Buka alamat lokal yang ditampilkan Vite. Jalankan `npm run build` untuk membuat build produksi di `dist/` dan `npm run preview` untuk pratinjaunya.
 
-## What Works
+## Akun Demo
 
-- View six seeded equipment records and select equipment for details.
-- Admins can add individual equipment units and mark or clear maintenance for each unit.
-- Available and maintenance unit counts are shown separately; units under maintenance are unavailable for new demo requests.
-- See total equipment records and how many currently show available units.
-- Create a local demo request when the selected equipment has available units and is not under maintenance.
-- Students can view the status of requests associated with their demo account.
-- Admins can approve or reject requests awaiting a decision; students see the resulting status.
-- Approved and rejected requests appear immediately as decision cards on the admin page.
-- Admins can expand reserved unit cards to view the associated student details.
-- See a disabled action when the selected equipment has no available units.
-- Reset all browser demo changes to the original seed data.
+| Peran | Nama |
+| --- | --- |
+| Admin | Admin Demo |
+| Mahasiswa | Student Demo |
+
+Akun didefinisikan di `src/auth/users.js`. Login ini hanya untuk demonstrasi dan bukan autentikasi sungguhan.
+
+## Fitur
+
+### Admin
+- Menambah unit individual pada peralatan.
+- Menandai atau menghapus status pemeliharaan per unit; unit dalam pemeliharaan tidak dapat dipinjam.
+- Melihat daftar ketersediaan unit per nomor inventaris dan periode (tersedia, dipesan, pemeliharaan).
+- Melihat hasil pengecekan konflik jadwal pada setiap pengajuan.
+- Menyetujui atau menolak pengajuan berstatus menunggu keputusan; hasilnya langsung tampil sebagai kartu keputusan.
+- Membuka kartu unit yang dipesan untuk melihat data mahasiswa peminjam (nama, NIM, program studi).
+
+### Mahasiswa
+- Melihat enam peralatan seed, detailnya, dan jumlah unit tersedia serta dalam pemeliharaan.
+- Mengajukan peminjaman dengan memilih unit dan periode, selama peralatan memiliki unit tersedia.
+- Melihat status pengajuan yang terkait dengan akunnya.
+
+### Umum
+- Total peralatan dan jumlah yang masih memiliki unit tersedia.
+- Tombol aksi dinonaktifkan jika tidak ada unit tersedia.
+- **Reset Demo Data** untuk memulihkan data seed.
+
+## Aturan Ketersediaan
+
+Logika berada di `src/utils/unitAvailability.js`:
+
+- Status unit: `AVAILABLE`, `RESERVED`, atau `MAINTENANCE`.
+- Periode valid jika tanggal mulai dan selesai terisi dan mulai ≤ selesai.
+- Dua pengajuan pada unit yang sama dianggap konflik jika periodenya tumpang tindih.
+- Pengajuan berstatus `REJECTED`, `CANCELLED`, atau `RETURNED` diabaikan dalam pengecekan konflik.
+- Unit yang ditandai pemeliharaan selalu dianggap konflik.
 
 ## Data & Reset
 
-Static starter records come from `src/data/seed.js`. Changes, including units and their maintenance markers, are saved as JSON under `sdlc:case-d:v1` in this browser's `localStorage`. Existing demo data using the previous per-equipment maintenance format is migrated when loaded. Data is not shared with another browser or device and is not written back to Git. Use **Reset Demo Data** to restore a fresh copy of the seed data.
+Data seed berasal dari `src/data/seed.js`. Perubahan (termasuk unit dan penanda pemeliharaan) disimpan sebagai JSON pada kunci `sdlc:case-d:v1` di `localStorage`. Data demo lama dengan format pemeliharaan per peralatan dimigrasikan otomatis saat dimuat. Data tidak dibagikan antarbrowser atau perangkat dan tidak ditulis kembali ke Git.
 
-## Project Structure
+## Struktur Proyek
 
-- `src/App.jsx` owns the page state and connects the UI actions.
-- `src/components/` contains the equipment list, cards, details, request list, and status badge.
-- `src/data/seed.js` contains deterministic demo records.
-- `src/utils/equipmentUtils.js` contains small request checks, ID creation, and lookup helpers.
-- `src/utils/storage.js` safely loads, saves, and resets local browser data.
-- `src/styles.css` contains the responsive page styles.
+```
+src/
+├── App.jsx                # State utama dan koneksi aksi UI
+├── main.jsx               # Entry point
+├── styles.css             # Gaya responsif
+├── auth/                  # LoginPage, session, users
+├── components/            # AppHeader, ResetControl, SearchableSelect, StatusBadge
+├── data/seed.js           # Data demo deterministik
+├── features/
+│   ├── equipment/         # EquipmentCard, EquipmentDetails, EquipmentList
+│   ├── requests/          # BorrowRequestModal, RequestList
+│   └── units/             # UnitFilterPanel
+├── pages/
+│   ├── admin/AdminPage.jsx
+│   └── student/StudentPage.jsx
+└── utils/                 # equipmentUtils, storage, unitAvailability
+```
 
-## Collaboration Notes
+## Alur Kolaborasi
 
-Work from your group's own Sprint Backlog. Use a branch, make focused commits, open a pull request, and ask a peer to review it before merge. Keep the code change and review evidence connected to the backlog item selected by your group.
+Kerjakan item dari Sprint Backlog kelompok Anda: gunakan branch khusus, buat commit yang terfokus, buka pull request, dan minta peer review sebelum merge. Hubungkan perubahan kode dan bukti review dengan item backlog yang dipilih.
 
-## Limitations
+## Batasan
 
-This is a client-side demonstration only. It has no backend, authentication, shared database, or cross-device synchronization. Browser data is for local practice and should not be used for sensitive or operational information.
+Aplikasi ini hanya demonstrasi sisi klien. Tidak ada backend, autentikasi sungguhan, basis data bersama, atau sinkronisasi lintas perangkat. Jangan gunakan untuk data sensitif atau operasional.
