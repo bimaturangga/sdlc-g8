@@ -12,11 +12,13 @@ export default function AdminPage({
   onReset,
   onToggleMaintenance,
   onAddUnit,
-  onConfirmRequest,
+  onUpdateRequestStatus,
   onLogout,
 }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const currentPeriod = { start: today, end: today };
   const availableCount = data.equipment.reduce(
-    (total, item) => total + getAvailableUnitCount(item),
+    (total, item) => total + getAvailableUnitCount(item, data.requests, currentPeriod),
     0,
   );
   const maintenanceCount = data.equipment.reduce(
@@ -52,7 +54,7 @@ export default function AdminPage({
         requests={data.requests}
         onToggleMaintenance={onToggleMaintenance}
         onAddUnit={onAddUnit}
-        onConfirmRequest={onConfirmRequest}
+        onUpdateRequestStatus={onUpdateRequestStatus}
       />
     </main>
   );

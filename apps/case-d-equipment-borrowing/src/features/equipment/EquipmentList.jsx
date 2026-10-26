@@ -6,6 +6,8 @@ export default function EquipmentList({
   onSelect,
   onToggleMaintenance,
   onAddUnit,
+  requests = [],
+  period,
 }) {
   if (equipment.length === 0) {
     return <div className="empty-state">No equipment records are available.</div>;
@@ -19,6 +21,8 @@ export default function EquipmentList({
             equipmentItem={equipmentItem}
             isSelected={equipmentItem.id === selectedId}
             onSelect={onSelect}
+            requests={requests}
+            period={period}
           />
           {onToggleMaintenance && (
             <div className="unit-management" aria-label={`Units for ${equipmentItem.name}`}>

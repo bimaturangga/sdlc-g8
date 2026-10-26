@@ -25,7 +25,8 @@ Open the local address shown by Vite. Run `npm run build` to create a production
 - Available and maintenance unit counts are shown separately; units under maintenance are unavailable for new demo requests.
 - See total equipment records and how many currently show available units.
 - Create a local demo request when the selected equipment has available units and is not under maintenance.
-- View seeded and newly added requests with their status.
+- Students can view the status of requests associated with their demo account.
+- Admins can approve or reject requests awaiting a decision; students see the resulting status.
 - See a disabled action when the selected equipment has no available units.
 - Reset all browser demo changes to the original seed data.
 

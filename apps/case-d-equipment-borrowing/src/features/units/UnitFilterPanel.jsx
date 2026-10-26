@@ -59,7 +59,7 @@ export default function UnitFilterPanel({
   requests,
   onToggleMaintenance,
   onAddUnit,
-  onConfirmRequest,
+  onUpdateRequestStatus,
 }) {
   const [period, setPeriod] = useState(() => ({ start: todayIso(), end: todayIso() }));
   const [statuses, setStatuses] = useState([]);
@@ -205,7 +205,7 @@ export default function UnitFilterPanel({
                 requests={requests}
                 equipment={equipment}
                 staffView
-                onConfirm={onConfirmRequest}
+                onUpdateRequestStatus={onUpdateRequestStatus}
               />
             </div>
           )}
