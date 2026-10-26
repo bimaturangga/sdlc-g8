@@ -27,6 +27,7 @@ Open the local address shown by Vite. Run `npm run build` to create a production
 - Create a local demo request when the selected equipment has available units and is not under maintenance.
 - Students can view the status of requests associated with their demo account.
 - Admins can approve or reject requests awaiting a decision; students see the resulting status.
+- Approved and rejected requests appear immediately as decision cards on the admin page.
 - See a disabled action when the selected equipment has no available units.
 - Reset all browser demo changes to the original seed data.
 
