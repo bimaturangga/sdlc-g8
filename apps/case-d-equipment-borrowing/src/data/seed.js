@@ -41,6 +41,7 @@ const requests = [
   {
     id: 'REQ-001',
     equipmentId: 'EQ-002',
+    studentId: 'USR-002',
     studentName: 'Bima Turangga',
     studentNim: '2210511001',
     studentProdi: 'S1 Informatika',
@@ -52,6 +53,7 @@ const requests = [
   {
     id: 'REQ-002',
     equipmentId: 'EQ-004',
+    studentId: 'USR-003',
     studentName: 'Siti Rahma',
     studentNim: '2210511002',
     studentProdi: 'S1 Sistem Informasi',
@@ -109,6 +111,7 @@ export function migrateStoredData(value) {
           studentName: '',
           studentNim: '',
           studentProdi: '',
+          studentId: '',
           unitId: '',
           startDate: '',
           endDate: '',

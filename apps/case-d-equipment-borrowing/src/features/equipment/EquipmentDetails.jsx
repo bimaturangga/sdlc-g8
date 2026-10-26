@@ -9,6 +9,8 @@ export default function EquipmentDetails({
   equipmentItem,
   allEquipment = [],
   cart = {},
+  requests = [],
+  period,
   onQuantityChange,
   onOpenBorrowModal,
 }) {
@@ -16,8 +18,8 @@ export default function EquipmentDetails({
     return <div className="empty-state">Pilih peralatan untuk melihat rincian dan mengajukan peminjaman.</div>;
   }
 
-  const canRequest = canCreateDemoRequest(equipmentItem);
-  const availableUnits = getAvailableUnitCount(equipmentItem);
+  const canRequest = canCreateDemoRequest(equipmentItem, requests, period);
+  const availableUnits = getAvailableUnitCount(equipmentItem, requests, period);
   const maintenanceUnits = getMaintenanceUnitCount(equipmentItem);
   const status = canRequest
     ? 'AVAILABLE'

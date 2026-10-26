@@ -3,8 +3,14 @@ import {
   getMaintenanceUnitCount,
 } from '../../utils/equipmentUtils.js';
 
-export default function EquipmentCard({ equipmentItem, isSelected, onSelect }) {
-  const availableUnits = getAvailableUnitCount(equipmentItem);
+export default function EquipmentCard({
+  equipmentItem,
+  isSelected,
+  onSelect,
+  requests = [],
+  period,
+}) {
+  const availableUnits = getAvailableUnitCount(equipmentItem, requests, period);
   const maintenanceUnits = getMaintenanceUnitCount(equipmentItem);
   const status = availableUnits > 0
     ? 'AVAILABLE'

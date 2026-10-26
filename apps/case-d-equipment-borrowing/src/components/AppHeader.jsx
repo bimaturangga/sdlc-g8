@@ -10,7 +10,7 @@ export default function AppHeader({ user, onLogout, children }) {
           Browse campus equipment and record local demo requests.
         </p>
       </div>
-      <div>
+      <div className="app-header-actions">
         {children}
         <button className="secondary-button" type="button" onClick={onLogout}>
           Sign out

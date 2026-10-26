@@ -45,10 +45,11 @@ export default function App() {
         const equipmentItem = current.equipment.find((item) => item.id === equipmentId);
         if (!equipmentItem) continue;
 
-        newRequests = [
-          ...newRequests,
-          createDemoRequest(newRequests, input),
-        ];
+        const requestDetails =
+          typeof input === 'object' && input !== null
+            ? { ...input, studentId: user.id }
+            : { equipmentId, studentId: user.id };
+        newRequests = [...newRequests, createDemoRequest(newRequests, requestDetails)];
       }
 
       return {
@@ -90,12 +91,14 @@ export default function App() {
     }));
   }
 
-  function handleConfirmRequest(requestId) {
+  function handleUpdateRequestStatus(requestId, status) {
     setData((current) => ({
       ...current,
       requests: current.requests.map((request) =>
-        request.id === requestId && request.status === 'REQUESTED'
-          ? { ...request, status: 'CONFIRMED' }
+        request.id === requestId &&
+        ['REQUESTED', 'WAITING_APPROVAL'].includes(request.status) &&
+        ['APPROVED', 'REJECTED'].includes(status)
+          ? { ...request, status }
           : request,
       ),
     }));
@@ -115,7 +118,7 @@ export default function App() {
         onReset={handleReset}
         onToggleMaintenance={handleToggleMaintenance}
         onAddUnit={handleAddUnit}
-        onConfirmRequest={handleConfirmRequest}
+        onUpdateRequestStatus={handleUpdateRequestStatus}
         onLogout={handleLogout}
       />
     );

@@ -9,12 +9,18 @@ export default function StudentPage({ user, data, onCreateRequest, onLogout }) {
   const [selectedId, setSelectedId] = useState(() => data.equipment[0]?.id ?? null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lastSubmittedCount, setLastSubmittedCount] = useState(null);
+  const [isRequestStatusOpen, setIsRequestStatusOpen] = useState(false);
 
   // State pilihan barang & jumlah unit: { [equipmentId]: quantity }
   const [cart, setCart] = useState({});
 
   const selectedEquipment =
     data.equipment.find((item) => item.id === selectedId) ?? null;
+  const today = new Date().toISOString().slice(0, 10);
+  const currentPeriod = { start: today, end: today };
+  const studentRequests = data.requests.filter(
+    (request) => request.studentId === user.id || (!request.studentId && request.studentName === user.name),
+  );
 
   function handleQuantityChange(equipmentId, nextQty) {
     setCart((prev) => {
@@ -49,34 +55,41 @@ export default function StudentPage({ user, data, onCreateRequest, onLogout }) {
       <p className="browser-note">Demo data is saved in this browser only.</p>
 
       {lastSubmittedCount && (
-        <div
-          style={{
-            padding: '14px 18px',
-            marginBottom: '18px',
-            borderRadius: '10px',
-            background: '#ecfdf3',
-            border: '1px solid #a6f4c5',
-            color: '#027a48',
-            fontSize: '0.92rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 1px 3px rgba(16, 24, 40, 0.05)',
-          }}
-        >
-          <span>
-            ✓ Permintaan peminjaman untuk <strong>{lastSubmittedCount} unit alat</strong> berhasil diajukan! Status tercatat:{' '}
-            <strong>WAITING APPROVAL</strong>.
-          </span>
-          <button
-            type="button"
-            className="link-button"
-            onClick={() => setLastSubmittedCount(null)}
-            style={{ color: '#027a48', fontWeight: 700, cursor: 'pointer' }}
-          >
-            Tutup
-          </button>
-        </div>
+        <>
+          <div className="request-notification" role="status">
+            <p>
+              Permintaan peminjaman untuk <strong>{lastSubmittedCount} unit alat</strong> berhasil diajukan.
+              Status saat ini: <strong>WAITING APPROVAL</strong>.
+            </p>
+            <button
+              type="button"
+              className="secondary-button notification-status-link"
+              aria-expanded={isRequestStatusOpen}
+              aria-controls="request-status"
+              onClick={() => setIsRequestStatusOpen((isOpen) => !isOpen)}
+            >
+              {isRequestStatusOpen ? 'Sembunyikan Status Permintaan' : 'Lihat Status Permintaan'}
+            </button>
+          </div>
+          {isRequestStatusOpen && (
+            <section
+              className="request-status-section"
+              id="request-status"
+              aria-labelledby="request-list-heading"
+            >
+              <div className="panel-heading">
+                <div>
+                  <h2 id="request-list-heading">Status Permintaan Saya</h2>
+                  <p className="meta request-status-help">
+                    Pantau keputusan admin untuk setiap permintaan peminjaman Anda.
+                  </p>
+                </div>
+                <span className="meta">{studentRequests.length} total</span>
+              </div>
+              <RequestList requests={studentRequests} equipment={data.equipment} />
+            </section>
+          )}
+        </>
       )}
 
       <section className="content-grid">
@@ -88,6 +101,8 @@ export default function StudentPage({ user, data, onCreateRequest, onLogout }) {
             equipment={data.equipment}
             selectedId={selectedId}
             onSelect={setSelectedId}
+            requests={data.requests}
+            period={currentPeriod}
           />
         </section>
 
@@ -96,18 +111,12 @@ export default function StudentPage({ user, data, onCreateRequest, onLogout }) {
             equipmentItem={selectedEquipment}
             allEquipment={data.equipment}
             cart={cart}
+            requests={data.requests}
+            period={currentPeriod}
             onQuantityChange={handleQuantityChange}
             onOpenBorrowModal={handleOpenBorrowModal}
           />
         </aside>
-      </section>
-
-      <section className="panel secondary-section" aria-labelledby="request-list-heading" style={{ marginTop: '24px' }}>
-        <div className="panel-heading">
-          <h2 id="request-list-heading">Demo Requests</h2>
-          <span className="meta">{data.requests.length} total</span>
-        </div>
-        <RequestList requests={data.requests} equipment={data.equipment} />
       </section>
 
       <BorrowRequestModal

@@ -1,13 +1,21 @@
-export function getAvailableUnitCount(equipmentItem) {
-  return equipmentItem?.units?.filter((unit) => !unit.maintenance).length ?? 0;
+import { getUnitsWithStatus, UNIT_STATUS } from './unitAvailability.js';
+
+export function getAvailableUnitCount(equipmentItem, requests = [], period) {
+  if (!equipmentItem?.units) return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const availablePeriod = period ?? { start: today, end: today };
+
+  return getUnitsWithStatus(equipmentItem, requests, availablePeriod).filter(
+    (unit) => unit.status === UNIT_STATUS.AVAILABLE,
+  ).length;
 }
 
 export function getMaintenanceUnitCount(equipmentItem) {
   return equipmentItem?.units?.filter((unit) => unit.maintenance).length ?? 0;
 }
 
-export function canCreateDemoRequest(equipmentItem) {
-  return getAvailableUnitCount(equipmentItem) > 0;
+export function canCreateDemoRequest(equipmentItem, requests = [], period) {
+  return getAvailableUnitCount(equipmentItem, requests, period) > 0;
 }
 
 export function getEquipmentName(equipment, equipmentId) {
@@ -21,6 +29,8 @@ export function createDemoRequest(requests, requestInput) {
     typeof requestInput === 'object' && requestInput.unitId ? requestInput.unitId : '';
   const studentName =
     typeof requestInput === 'object' ? requestInput.studentName : '';
+  const studentId =
+    typeof requestInput === 'object' ? requestInput.studentId : '';
   const studentNim =
     typeof requestInput === 'object' ? requestInput.studentNim : '';
   const studentProdi =
@@ -43,6 +53,7 @@ export function createDemoRequest(requests, requestInput) {
   return {
     id: `REQ-${String(nextNumber).padStart(3, '0')}`,
     equipmentId,
+    studentId,
     studentName: studentName || 'Mahasiswa Demo',
     studentNim: studentNim || '-',
     studentProdi: studentProdi || '-',
