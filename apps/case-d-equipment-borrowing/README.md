@@ -28,6 +28,7 @@ Open the local address shown by Vite. Run `npm run build` to create a production
 - Students can view the status of requests associated with their demo account.
 - Admins can approve or reject requests awaiting a decision; students see the resulting status.
 - Approved and rejected requests appear immediately as decision cards on the admin page.
+- Admins can expand reserved unit cards to view the associated student details.
 - See a disabled action when the selected equipment has no available units.
 - Reset all browser demo changes to the original seed data.
 

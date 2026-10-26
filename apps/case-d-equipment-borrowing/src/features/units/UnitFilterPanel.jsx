@@ -64,6 +64,7 @@ export default function UnitFilterPanel({
   const [period, setPeriod] = useState(() => ({ start: todayIso(), end: todayIso() }));
   const [statuses, setStatuses] = useState([]);
   const [equipmentIds, setEquipmentIds] = useState([]);
+  const [expandedRequestIds, setExpandedRequestIds] = useState(() => new Set());
 
   const [openMenu, setOpenMenu] = useState(null);
   const [addTargetId, setAddTargetId] = useState('');
@@ -108,6 +109,18 @@ export default function UnitFilterPanel({
   const activeFilterCount =
     (statuses.length > 0 ? 1 : 0) + (equipmentIds.length > 0 ? 1 : 0);
   const totalRows = groups.reduce((total, group) => total + group.rows.length, 0);
+
+  function toggleRequestDetails(requestId) {
+    setExpandedRequestIds((current) => {
+      const next = new Set(current);
+      if (next.has(requestId)) {
+        next.delete(requestId);
+      } else {
+        next.add(requestId);
+      }
+      return next;
+    });
+  }
 
   return (
     <section className="panel" aria-labelledby="admin-equipment-heading">
@@ -314,23 +327,73 @@ export default function UnitFilterPanel({
                     <ul className="unit-list" aria-label={`Units of ${equipmentItem.name}`}>
                       {rows.map(({ unit, status, request }) => (
                         <li className="unit-row" key={unit.id}>
-                          <span>
-                            <strong>{unit.id}</strong>
-                            <span className={`status-badge ${TONES[status]}`}>{status}</span>
+                          <span className="unit-row-main">
+                            <span className="unit-row-title">
+                              <strong>{unit.id}</strong>
+                              <span className={`status-badge ${TONES[status]}`}>{status}</span>
+                            </span>
                             {request && (
                               <span className="meta">
-                                {request.id} · {request.startDate} to {request.endDate}
+                                {request.id}
+                                {request.startDate && request.endDate
+                                  ? ` · ${request.startDate} s/d ${request.endDate}`
+                                  : ''}
+                                {request.studentName ? ` · ${request.studentName}` : ''}
                               </span>
                             )}
                           </span>
-                          <button
-                            className="maintenance-button"
-                            type="button"
-                            onClick={() => onToggleMaintenance(equipmentItem.id, unit.id)}
-                            aria-pressed={unit.maintenance}
+                          <div className="unit-row-actions">
+                            <button
+                              className="unit-icon-button"
+                              type="button"
+                              aria-label={`${expandedRequestIds.has(unit.id) ? 'Sembunyikan' : 'Lihat'} detail peminjam untuk ${unit.id}`}
+                              aria-expanded={expandedRequestIds.has(unit.id)}
+                              aria-controls={`borrower-details-${unit.id}`}
+                              title="Detail peminjam"
+                              onClick={() => toggleRequestDetails(unit.id)}
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="5" r="1.6" />
+                                <circle cx="12" cy="12" r="1.6" />
+                                <circle cx="12" cy="19" r="1.6" />
+                              </svg>
+                            </button>
+                            <button
+                              className={`unit-icon-button maintenance-icon-button${unit.maintenance ? ' active' : ''}`}
+                              type="button"
+                              onClick={() => onToggleMaintenance(equipmentItem.id, unit.id)}
+                              aria-label={`${unit.maintenance ? 'Hapus status maintenance' : 'Tandai maintenance'} untuk ${unit.id}`}
+                              aria-pressed={unit.maintenance}
+                              title={unit.maintenance ? 'Hapus status maintenance' : 'Tandai maintenance'}
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M14.7 6.3a5 5 0 0 0-6.4 6.4l-5.1 5.1a2.1 2.1 0 0 0 3 3l5.1-5.1a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3Z" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div
+                            className="borrower-details"
+                            id={`borrower-details-${unit.id}`}
+                            hidden={!expandedRequestIds.has(unit.id)}
                           >
-                            {unit.maintenance ? 'Clear maintenance' : 'Mark maintenance'}
-                          </button>
+                            {request ? (
+                              <>
+                                <strong>Student / borrower details</strong>
+                                <dl>
+                                  <dt>Nama</dt>
+                                  <dd>{request.studentName || 'Tidak tersedia'}</dd>
+                                  <dt>NIM</dt>
+                                  <dd>{request.studentNim || 'Tidak tersedia'}</dd>
+                                  <dt>Program studi</dt>
+                                  <dd>{request.studentProdi || 'Tidak tersedia'}</dd>
+                                  <dt>ID permintaan</dt>
+                                  <dd>{request.id}</dd>
+                                </dl>
+                              </>
+                            ) : (
+                              <span className="meta">Tidak ada detail peminjam untuk unit ini pada periode yang dipilih.</span>
+                            )}
+                          </div>
                         </li>
                       ))}
                     </ul>
